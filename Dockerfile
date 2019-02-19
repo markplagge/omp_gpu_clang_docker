@@ -123,8 +123,8 @@ cmake -DLLVM_ENABLE_PROJECTS="openmp;clang;libcxx;libcxxabi;parallel-libs;lld;ll
 	-DLLVM_ENABLE_CXX1Y=ON \
 	-DLIBCXXABI_BUILD_STATIC=ON \
 	-DLLVM_ENABLE_CXX1Z=ON \
-	-DCLANG_DEFAULT_STD_CXX="c++1y" \
-	-DCLANG_DEFAULT_STD_C="c11" \
+#	-DCLANG_DEFAULT_STD_CXX="c++1y" \
+#	-DCLANG_DEFAULT_STD_C="c11" \
 	-LLVM_ENABLE_RUNTIMES="all" \
 	../llvm
 run cd llvm_work/build && make -j $NUM_CPU && make install
@@ -137,9 +137,9 @@ run mkdir ./llvm_work/omp && cd ./llvm_work/omp && cmake -DCMAKE_C_COMPILER=`whi
         -DLIBOMPTARGET_NVPTX_COMPUTE_CAPABILITIES=61,52,35 \
         -DLIBOMPTARGET_NVPTX_ALTERNATE_HOST_COMPILER=`which gcc-7` \
         -DLIBOMP_USE_DEBUGGER=ON \
-#	-DCMAKE_CXX_FLAGS="-std=c++14" \
+	-DCMAKE_CXX_FLAGS="-std=c++14" \
 ../openmp
-run cd ./llvm_work/omp && make -j 40 $NUM_CPU make -j $NUM_ $NUM_ $NUM_CPUUU install
+run cd ./llvm_work/omp && make -j $NUM_CPU && make -j $NUM_CPU install
 #run cd llvm_work/build && cmake -DLLVM_ENABLE_PROJECTS="openmp;clang;libcxx;libcxxabi;parallel-libs;lld;llvm;lldb;libclc;clang-tools-extra" \
 #-DCMAKE_BUILD_TYPE="RELEASE" \
 #-DCMAKE_INSTALL_PREFIX=$(pwd)/../install \
@@ -180,9 +180,10 @@ run updatedb
 ####################
 # MPICH for MPI
 ####################
+run update-alternatives --install /usr/bin/cc cc /usr/local/bin/clang 30 && update-alternatives --install /usr/bin/cxx cxx /usr/local/bin/clang++ 30
 RUN cd / && \
-update-alternatives --install /usr/bin/cc cc /usr/bin/clang-8 30 && \
-update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-8 30 && \
+#update-alternatives --install /usr/bin/cc cc /usr/bin/clang-8 30 && \
+#update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-8 30 && \
 wget  http://www.mpich.org/static/downloads/3.3/mpich-3.3.tar.gz && \
 tar -xvf ./mpich-3.3.tar.gz && \
 cd mpich-3.3 && export CC=`which clang` && export CXX=`which clang++` && \
@@ -194,10 +195,10 @@ run rm -f /mpich-3.3.tar.gz
 ################
 # SSH
 ################
-run apt-get install -y openssh-server
-run mkidr /var/run/sshd
+run apt-get update && apt-get install -y openssh-server
+run mkdir /var/run/sshd
 run echo 'root:dev' | chpasswd
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
@@ -214,6 +215,5 @@ EXPOSE 22
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 ENV CLANG_CXX_FLAGS="-fgnu -std=c++14 -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -L/usr/local/lib -stdlib=libc++ -lm"
 ENV CLANG_C_FLAGS="-fgnu  -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -L/usr/local/lib -stdlib=libc++ -lm"
-
 RUN rm -rf ./llvm_work/*
 CMD ["/usr/sbin/sshd", "-D"]
