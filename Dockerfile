@@ -221,5 +221,7 @@ run apt-get install -y gdb
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 ENV CLANG_CXX_FLAGS="-fgnu -std=c++14 -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -L/usr/local/lib -stdlib=libc++ -lm"
 ENV CLANG_C_FLAGS="-fgnu  -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -L/usr/local/lib -stdlib=libc++ -lm"
+RUN echo "Port 2200" >> /etc/ssh/sshd_config
+EXPOSE 2200
 RUN rm -rf ./llvm_work/*
 CMD ["/usr/sbin/sshd", "-D"]
