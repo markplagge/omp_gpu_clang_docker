@@ -51,6 +51,7 @@ env LIB_FOLDER=/llvm_work/lib
 ########## New Required and nice-to-have packages
 run apt-get update
 run apt-get install -y man
+run apt-get update
 run apt-get install -y \
     clang-6.0 \
     llvm-6.0 \
