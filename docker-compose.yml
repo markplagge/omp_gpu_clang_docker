@@ -1,0 +1,6 @@
+version: '3'
+services:
+        omp_cuda_clang:1.3:
+                build: .
+                image: plaggm/omp_gpu_clang_docker
+
